@@ -1,0 +1,29 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: curator-app
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/fintech_sandbox}
+    username: ${DB_USER:fintech}
+    password: ${DB_PASSWORD:fintech}
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 3000
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
+
+zookeeper:
+  connect-string: ${ZK_CONNECT:localhost:2181}
+  session-timeout-ms: 5000
+  connection-timeout-ms: 3000
+  namespace: fintech-sandbox
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

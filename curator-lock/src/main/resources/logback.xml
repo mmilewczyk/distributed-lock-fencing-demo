@@ -1,0 +1,16 @@
+<configuration>
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<root level="INFO">
+		<appender-ref ref="CONSOLE"/>
+	</root>
+
+	<logger name="com.matcodem.lock" level="DEBUG"/>
+	<logger name="org.apache.zookeeper" level="WARN"/>
+	<logger name="org.apache.curator" level="INFO"/>
+	<logger name="org.redisson" level="INFO"/>
+</configuration>

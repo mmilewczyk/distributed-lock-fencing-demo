@@ -1,0 +1,88 @@
+services:
+
+  # Infrastructure
+
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: fintech_sandbox
+      POSTGRES_USER: fintech
+      POSTGRES_PASSWORD: fintech
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U fintech -d fintech_sandbox" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_SESSION_TIMEOUT_MS: 6000
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "echo ruok | nc localhost 2181" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Applications
+
+  redisson-app:
+    build:
+      context: .
+      dockerfile: redisson-app/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      REDIS_URL: redis://redis:6379
+      DB_URL: jdbc:postgresql://postgres:5432/fintech_sandbox
+      DB_USER: fintech
+      DB_PASSWORD: fintech
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  curator-app:
+    build:
+      context: .
+      dockerfile: curator-app/Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      ZK_CONNECT: zookeeper:2181
+      DB_URL: jdbc:postgresql://postgres:5432/fintech_sandbox
+      DB_USER: fintech
+      DB_PASSWORD: fintech
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8082/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10

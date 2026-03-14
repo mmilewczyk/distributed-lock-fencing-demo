@@ -1,0 +1,30 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: redisson-app
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/fintech_sandbox}
+    username: ${DB_USER:fintech}
+    password: ${DB_PASSWORD:fintech}
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 3000
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
+
+redis:
+  url: ${REDIS_URL:redis://localhost:6379}
+
+lock:
+  lease-time-ms: 5000
+  wait-time-ms: 3000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
