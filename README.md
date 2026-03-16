@@ -1,8 +1,15 @@
 # distributed-lock-fencing-demo
 
+> Companion code for the article: https://medium.com/@mateuszmilewczyk/why-redis-locks-are-unsafe-without-fencing-tokens-3603f86bf38b
+> **"Redis locks can fail under GC pauses — fencing tokens explained"**
+
+Under a long JVM GC pause, a Redis lock can expire while the process still believes it owns the lock. 
+A second process can then acquire the lock and perform a conflicting write.
+
 Practical comparison of two distributed locking strategies applied to a **fintech payment transfer** scenario. Both
 applications use an intentionally unsafe **read-modify-write** pattern - the only difference is what happens to a stale
 write when the lock expires.
+
 
 |                              | redisson-app (port 8081)     | curator-app (port 8082)             |
 |------------------------------|------------------------------|-------------------------------------|
